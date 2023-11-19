@@ -18,7 +18,16 @@ def generate_scrape_url(ts_arg):
 
 
 def generate_url_request(url):
-    return urlopen(Request(url, headers={"User-Agent": "XYZ/3.0"}), timeout=10)
+    return urlopen(
+        Request(
+            url,
+            headers={
+                "User-Agent": "XYZ/3.0",
+                "cookie": """your cookie value ( you can get that from your web page) """,
+            },
+        ),
+        timeout=10,
+    )
 
 
 def scrape_liveblog(ts_arg):
