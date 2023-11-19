@@ -18,7 +18,7 @@ def generate_scrape_url(ts_arg):
 
 
 def generate_url_request(url):
-    return urlopen(Request(url, headers={"User-Agent": "Mozilla/5.0"}))
+    return urlopen(Request(url, headers={"User-Agent": "Mozilla/6.0"}))
 
 
 def scrape_liveblog(ts_arg):
