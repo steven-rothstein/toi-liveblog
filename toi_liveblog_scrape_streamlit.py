@@ -41,7 +41,7 @@ def scrape_liveblog(ts_arg):
         )
 
     soup = bs4.BeautifulSoup(
-        url_request.read(),
+        url_request.read().decode("utf-8"),
         "html.parser",
     )
 
