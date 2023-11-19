@@ -8,7 +8,6 @@ import streamlit as st
 from urllib.request import Request, urlopen
 from datetime import datetime, timezone, timedelta
 
-import requests
 
 def generate_scrape_url(ts_arg):
     # %-d removes a leading 0
@@ -23,8 +22,7 @@ def generate_url_request(url):
         Request(
             url,
             headers={
-                "User-Agent": "XYZ/3.0",
-                "cookie": """your cookie value ( you can get that from your web page) """,
+                "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3"
             },
         ),
         timeout=10,
@@ -40,10 +38,9 @@ def scrape_liveblog(ts_arg):
         url_request = generate_url_request(
             generate_scrape_url(ts_arg - timedelta(days=1))
         )
-    session_obj = requests.Session()
+
     soup = bs4.BeautifulSoup(
-        session_obj.get(lb_url, headers={"User-Agent": "Mozilla/5.0"}).text,
-        #url_request.read().decode("utf-8"),
+        url_request.read(),
         "html.parser",
     )
 
