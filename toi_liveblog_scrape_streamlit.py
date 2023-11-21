@@ -36,6 +36,12 @@ def scrape_liveblog(ts_arg):
         "html.parser",
     )
 
+    liveblog_header = soup.find("h1", class_="headline").text
+    liveblog_underline = soup.find("h2", class_="underline").text
+
+    st.markdown(f"#### {liveblog_header}")
+    st.write(f":grey[{liveblog_underline}]")
+
     liveblog_entries = soup.find("div", id=re.compile("^liveblog-\d")).find_all(
         id=re.compile("^liveblog-entry-\d")
     )
@@ -59,7 +65,7 @@ def scrape_liveblog(ts_arg):
         lb_entry_href = lb_entry_title_helper["href"]
 
         expander = st.expander(
-            ":red[" + lb_entry_datetime_est_str + "] **" + lb_entry_title + "**"
+            f":red[{lb_entry_datetime_est_str}] **{lb_entry_title}**"
         )
 
         lb_entry_paragraph.h4.decompose()
