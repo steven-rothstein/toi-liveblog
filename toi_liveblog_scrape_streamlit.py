@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 def generate_scrape_url(ts_arg):
     # %-d removes a leading 0
     d_format = "%B-%-d-%Y"
-    if ts_arg.month == 11:
+    if ts_arg.month >= 11:
         d_format = "%B-%d-%Y"
     return "https://www.timesofisrael.com/liveblog-" + ts_arg.strftime(d_format).lower()
 
