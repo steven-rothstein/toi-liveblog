@@ -1,6 +1,6 @@
-# Times of Israel Live Blog
+# Times of Israel Live Blog: Streamlit Application
 
-This repository holds a simple Python script that scrapes [The Times of Israel's](timesofisrael.com) current live blog for its content, and writes it to a [Streamlit](streamlit.io) application that uses `expander` components for each blog post. The goal of this application is entirely UI-based. The news source's page requires users to scroll through all content, and the desire was to scroll through headlines and expand the headline if the article content was desired.
+This repository holds a simple Python script that scrapes [The Times of Israel's](https://timesofisrael.com) current live blog for its content, and writes it to a [Streamlit](https://streamlit.io) application that uses `expander` components for each blog post. The goal of this application is entirely UI-based. The news source's page requires users to scroll through all content, and the desire was to scroll through headlines and expand the headline if the article content was desired.
 
 ## Usage
 
