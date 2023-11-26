@@ -1,6 +1,7 @@
 import re
 import pytz
 import bs4
+import platform
 
 import markdownify as md
 import streamlit as st
@@ -10,8 +11,13 @@ from datetime import datetime, timezone, timedelta
 
 
 def generate_scrape_url(ts_arg):
-    # %-d removes a leading 0
-    d_format = "%B-%-d-%Y"
+    leading_0_char = "-"
+
+    if platform.system() == "Windows":
+        leading_0_char = "#"
+
+    d_format = f"%B-%{leading_0_char}d-%Y"
+
     if ts_arg.month >= 11:
         d_format = "%B-%d-%Y"
     return "https://www.timesofisrael.com/liveblog-" + ts_arg.strftime(d_format).lower()
@@ -80,19 +86,19 @@ def scrape_liveblog(ts_arg):
         lb_entry_media = lb_entry_paragraph.find("div", class_="media")
         if lb_entry_media:
             tmp_media = lb_entry_media.a.img
-            expander.image(tmp_media["src"])
-            expander.caption(tmp_media["title"])
+            expander.image(tmp_media["src"], caption=tmp_media["title"])
             lb_entry_media.decompose()
 
         lb_entry_captions = lb_entry_paragraph.find_all(
             "div", class_=re.compile("^wp-caption"), id=re.compile("^attachment")
         )
         if lb_entry_captions:
+            caption_images = [lb_entry_caption.a["href"] for lb_entry_caption in lb_entry_captions]
+            caption_captions = [lb_entry_caption.find("div", class_="wp-caption-text").text for lb_entry_caption in lb_entry_captions]
+
+            expander.image(caption_images, caption=caption_captions)
+
             for lb_entry_caption in lb_entry_captions:
-                expander.image(lb_entry_caption.a["href"])
-                expander.caption(
-                    lb_entry_caption.find("div", class_="wp-caption-text").text
-                )
                 lb_entry_caption.decompose()
 
         expander.write(md.markdownify(str(lb_entry_paragraph)))
