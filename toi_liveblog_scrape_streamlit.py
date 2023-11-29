@@ -114,16 +114,20 @@ def scrape_liveblog(ts_arg):
             "div", class_=re.compile("^wp-caption"), id=re.compile("^attachment")
         )
         if lb_entry_captions:
-            caption_images = [
-                lb_entry_caption.a["href"] for lb_entry_caption in lb_entry_captions
-            ]
-            caption_captions = [
-                lb_entry_caption.find("div", class_="wp-caption-text").text
-                for lb_entry_caption in lb_entry_captions
-            ]
+            for lb_entry_caption in lb_entry_captions:
+                tmp_caption_a = lb_entry_caption.a
+                tmp_caption_img = lb_entry_caption.img
+                tmp_caption_text = lb_entry_caption.find(
+                    "div", class_="wp-caption-text"
+                ).text
 
-            # Write to frontend
-            expander.image(caption_images, caption=caption_captions)
+                tmp_caption_img_to_use = None
+                if tmp_caption_a:
+                    tmp_caption_img_to_use = tmp_caption_a["href"]
+                elif tmp_caption_img:
+                    tmp_caption_img_to_use = tmp_caption_img["src"]
+
+                expander.image(tmp_caption_img_to_use, caption=tmp_caption_text)
 
             for lb_entry_caption in lb_entry_captions:
                 lb_entry_caption.decompose()
