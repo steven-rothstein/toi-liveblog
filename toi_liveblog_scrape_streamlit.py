@@ -17,7 +17,7 @@ def generate_scrape_url(ts_arg):
     if platform.system() == "Windows":
         leading_0_char = "#"
 
-    if ts_arg.month >= 11:
+    if ts_arg.month == 11:
         leading_0_char = ""
 
     return (
