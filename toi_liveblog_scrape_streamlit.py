@@ -12,25 +12,33 @@ from datetime import datetime, timezone, timedelta  # Time zone management
 
 # Helper function to format `datetime` named `ts_arg` according to `format_str`.
 # Returns the formatted URL to try to scrape.
-def format_date_url_segments(ts_arg, format_str):
-    url_base = "https://www.timesofisrael.com/liveblog-"
-    return f"{url_base}{ts_arg.strftime(format_str).lower()}"
+def generate_scrape_url(ts_arg, format_str):
+    return (
+        f"https://www.timesofisrael.com/liveblog-{ts_arg.strftime(format_str).lower()}"
+    )
 
 
 # Given a `datetime` named `ts_arg`, generate the urls to scrape (one with leading 0 in the day, one without),
 # which is based on the current UTC time.
-def generate_scrape_urls(ts_arg, remove_leading_day_zero=True):
+def generate_scrape_urls_to_process(ts_arg):
     leading_0_char = "-"
 
     if platform.system() == "Windows":
         leading_0_char = "#"
 
-    format_with_leading_0_char = f"%B-%{leading_0_char}d-%Y"
-    format_without_leading_0_char = "%B-%d-%Y"
+    perc_str = "%"
 
-    return format_date_url_segments(
-        ts_arg, format_with_leading_0_char
-    ), format_date_url_segments(ts_arg, format_without_leading_0_char)
+    format_with_leading_0_char = f"%B-%{leading_0_char}d-%Y"
+    format_without_leading_0_char = format_with_leading_0_char.replace(
+        f"{perc_str}{leading_0_char}", perc_str
+    )
+
+    return tuple(
+        [
+            generate_scrape_url(ts_arg, x)
+            for x in [format_with_leading_0_char, format_without_leading_0_char]
+        ]
+    )
 
 
 # Helper function to request a webpage to scrape, given a string `url`.
@@ -40,10 +48,10 @@ def generate_url_request(url):
 
 # Scrape the live blog, given a `datetime` named` `ts_arg` for which to check live blog posts.
 def scrape_liveblog(ts_arg):
-    lb_url_0, lb_url_1 = generate_scrape_urls(ts_arg)
-
     # If the live blog is not up yet, try yesterday's rather than throw an error.
     # First, try both versions of leading 0 in the day field for the URL.
+    lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
+
     try:
         url_request = generate_url_request(lb_url_0)
     except:
@@ -51,7 +59,7 @@ def scrape_liveblog(ts_arg):
             url_request = generate_url_request(lb_url_1)
         except:
             ts_arg -= timedelta(days=1)
-            lb_url_0, lb_url_1 = generate_scrape_urls(ts_arg)
+            lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
 
             try:
                 url_request = generate_url_request(lb_url_0)
