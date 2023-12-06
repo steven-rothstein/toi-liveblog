@@ -48,23 +48,17 @@ def generate_url_request(url):
 
 # Scrape the live blog, given a `datetime` named` `ts_arg` for which to check live blog posts.
 def scrape_liveblog(ts_arg):
-    # If the live blog is not up yet, try yesterday's rather than throw an error.
-    # First, try both versions of leading 0 in the day field for the URL.
-    lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
-
-    try:
-        url_request = generate_url_request(lb_url_0)
-    except:
+    for x in range(2):
+        # If the live blog is not up yet, try yesterday's rather than throw an error.
+        # First, try both versions of leading 0 in the day field for the URL if needed.
+        lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
         try:
-            url_request = generate_url_request(lb_url_1)
+            url_request = generate_url_request(lb_url_0)
         except:
-            ts_arg -= timedelta(days=1)
-            lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
-
             try:
-                url_request = generate_url_request(lb_url_0)
-            except:
                 url_request = generate_url_request(lb_url_1)
+            except:
+                ts_arg -= timedelta(days=1)
 
     # Parse the scraped html!
     soup = bs4.BeautifulSoup(
