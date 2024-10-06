@@ -1,5 +1,4 @@
 import re  # For regular expressions
-import pytz  # For time zone conversions
 import bs4  # For the scrape
 import platform  # For platform-dependent date format
 
@@ -8,6 +7,7 @@ import streamlit as st  # Frontend
 
 from urllib.request import Request, urlopen  # For obtaining the html for the scrape
 from datetime import datetime, timezone, timedelta  # Time zone management
+from zoneinfo import ZoneInfo  # For time zone conversions
 
 
 # Helper function to format `datetime` named `ts_arg` according to `format_str`.
@@ -77,21 +77,18 @@ def scrape_liveblog(ts_arg):
     st.write(f":grey[{liveblog_underline}]")
 
     # Find all live blog entries
-    liveblog_entries = soup.find("div", id=re.compile("^liveblog-\d")).find_all(
-        id=re.compile("^liveblog-entry-\d")
+    liveblog_entries = soup.find("div", id=re.compile(r"^liveblog-\d")).find_all(
+        id=re.compile(r"^liveblog-entry-\d")
     )
 
     # Loop through each entry, parse its components, and write them to the front end.
     for lb_entry in liveblog_entries:
         # Get the datetime of the entry and convert it to US/Eastern.
-        lb_entry_datetime = datetime.utcfromtimestamp(
-            int(lb_entry.find("div", class_="liveblog-date").a.span["data-timestamp"])
-        )
-        lb_entry_datetime_est = (
-            pytz.timezone("UTC")
-            .localize(lb_entry_datetime)
-            .astimezone(pytz.timezone("US/Eastern"))
-        )
+        lb_entry_datetime_est = datetime.fromtimestamp(
+            int(lb_entry.find("div", class_="liveblog-date").a.span["data-timestamp"]),
+            timezone.utc,
+        ).astimezone(ZoneInfo("America/New_York"))
+
         lb_entry_datetime_est_str = lb_entry_datetime_est.strftime("%I:%M:%S %p")
 
         # The main entry content

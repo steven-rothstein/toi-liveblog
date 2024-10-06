@@ -1,3 +1,2 @@
-pytz
 bs4
 markdownify
