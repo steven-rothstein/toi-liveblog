@@ -106,7 +106,7 @@ def scrape_liveblog(ts_arg):
 
         # Remove the already written content from the content to write, as well as the social media links.
         lb_entry_paragraph.h4.decompose()
-        lb_entry_paragraph.find("ul", class_="social liveblog-social").decompose()
+        lb_entry_paragraph.find("div", class_="single-share").decompose()
 
         # If a byline is found, get its text, convert to String, remove it from content to be written,
         # and finally convert it to markdown and write as a caption.
