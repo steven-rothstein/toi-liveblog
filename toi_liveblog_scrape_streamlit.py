@@ -1,6 +1,7 @@
 import re  # For regular expressions
 import bs4  # For the scrape
 import platform  # For platform-dependent date format
+import time # Selenium
 
 import markdownify as md  # Simple html to markdown conversion
 import streamlit as st  # Frontend
@@ -8,6 +9,13 @@ import streamlit as st  # Frontend
 from urllib.request import Request, urlopen  # For obtaining the html for the scrape
 from datetime import datetime, timezone, timedelta  # Time zone management
 from zoneinfo import ZoneInfo  # For time zone conversions
+from selenium import webdriver # Selenium
+from selenium.webdriver.chrome.options import Options # Selenium
+from selenium.webdriver.chrome.service import Service # Selenium
+from selenium.webdriver.common.by import By # Selenium
+from selenium.webdriver.support.ui import WebDriverWait # Selenium
+from selenium.webdriver.support import expected_conditions as EC # Selenium
+from webdriver_manager.chrome import ChromeDriverManager # Selenium
 
 
 # Helper function to format `datetime` named `ts_arg` according to `format_str`.
@@ -51,20 +59,44 @@ def scrape_liveblog(ts_arg):
     for _ in range(2):
         # If the live blog is not up yet, try yesterday's rather than throw an error.
         # First, try both versions of leading 0 in the day field for the URL if needed.
+        final_lb_url = None
         lb_url_0, lb_url_1 = generate_scrape_urls_to_process(ts_arg)
         try:
             url_request = generate_url_request(lb_url_0)
+            final_lb_url = lb_url_0
             break
         except:
             try:
                 url_request = generate_url_request(lb_url_1)
+                final_lb_url = lb_url_1
                 break
             except:
                 ts_arg -= timedelta(days=1)
 
+    options = Options()
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    # options.add_argument("--window-size=1920,1080")
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(final_lb_url)
+
+    html = None
+
+    try:
+        show_more_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "show-more-btn")))
+        show_more_button.click()
+        time.sleep(2)  # Wait for updates to load
+
+        # Get the updated page source
+        html = driver.page_source
+        driver.quit()
+    except Exception as e:
+        html = url_request.read()
+
     # Parse the scraped html!
     soup = bs4.BeautifulSoup(
-        url_request.read(),
+        html,
         "html.parser",
     )
 
