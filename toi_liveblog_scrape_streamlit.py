@@ -22,7 +22,7 @@ from webdriver_manager.chrome import ChromeDriverManager  # Selenium
 # Returns the formatted URL to try to scrape.
 def generate_scrape_url(ts_arg, format_str):
     return (
-        f"https://www.timesofisrael.com/liveblog-{ts_arg.strftime(format_str).lower()}"
+        f"https://www.timesofisrael.com/liveblog-{ts_arg.strftime(format_str).lower()}/"
     )
 
 
